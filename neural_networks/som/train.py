@@ -37,12 +37,45 @@ def train_new_som(rows, cols, inputsData):
         "alpha_f": 0.01,
         "lambda_s": lambda_s,
         "lambda_f": 1,
-        "eps": 50,#toto ovplyvnuje pocet epoch
+        "eps": 10,#toto ovplyvnuje pocet epoch
         "trace_interval": 10
     }
     #model.train(inputsData, metric=metric, alpha_s=0.5, alpha_f=0.01, lambda_s=lambda_s,
     #            lambda_f=1, eps=50, trace_interval=10) #na toto dictionary
     model.train(inputsData, **training_parameters)
+
+
+    """# Calculate metrics at the end of each epoch
+    quantization_error_train = model.quant_err()
+    winner_diff_train = model.winner_diff()
+    entropy_train = model.compute_entropy()
+    """
+    # Calculate metrics for the testing set if available
+    if inputsData is not None:
+        quantization_error_test = model.quant_err()
+        print(quantization_error_test)
+        winner_diff_test = model.winner_diff()
+        print(winner_diff_test)
+        entropy_test = model.compute_entropy()
+        print(entropy_test)
+    else:
+        quantization_error_test = None
+        winner_diff_test = None
+        entropy_test = None
+    
+    
+    
+    # Append metrics to the list for this epoch
+    """epoch_metrics.append({
+        "epoch": ep,
+        "quantization_error_train": quantization_error_train,
+        "winner_diff_train": winner_diff_train,
+        "entropy_train": entropy_train,
+        "quantization_error_test": quantization_error_test,
+        "winner_diff_test": winner_diff_test,
+        "entropy_test": entropy_test
+    })"""
+
     return model
 
 if __name__ == "__main__":
@@ -51,17 +84,19 @@ if __name__ == "__main__":
     #data_source = "data/data/data_leyla.data"
     
     data_source = "data/data/data_matej_new.data"
+
     """
     Training of arm SOM
     """
+
     np.set_printoptions(threshold=sys.maxsize)
     currentDirectory = os.getcwd()
-    print(currentDirectory)
+    #print(currentDirectory)
     f = open(data_source)
     data = json.load(f)
     f.close()
 
-    print("\n{}\n".format(len(data)))
+    #print("\n{}\n".format(len(data)))
 
     left = np.array([i["leftHandPro"] for i in data])
     #right = np.array([i["rightHandPro"] for i in data])
@@ -72,20 +107,20 @@ if __name__ == "__main__":
     #right_hand = np.array(right[:, 5:])
     #right_forearm = np.array(right[:, :5])
 
-    print("THIS WAS THE INPUT DATA TRAINING")
+    """print("THIS WAS THE INPUT DATA TRAINING")
     print(left)
 
     print("THIS IS THE FOREARM-ONLY DATA INPUT")
-    print(left_forearm)
+    print(left_forearm)"""
 
     (row_dim, count) = left_forearm.shape
-    print(row_dim)
-    print(count)
+    #print(row_dim)
+    #print(count)
 
     (count_whole, _) = left.shape
-    print(count_whole)
+    #print(count_whole)
     separator = int(count_whole * 0.8)
-    print("separator is ", separator)
+    #print("separator is ", separator)
 
     #Training sets
     #training_set_right_hand = np.array(right_hand[:separator, :]).T
@@ -100,19 +135,21 @@ if __name__ == "__main__":
     testing_set_left_hand = np.array(left_hand[separator:, :]).T
     testing_set_left_forearm = np.array(left_forearm[separator:, :]).T
 
-    print("this is TRAINING set (left fore)")
+    """print("this is TRAINING set (left fore)")
     print(training_set_left_forearm)
     print("This is TESTING set (left fore)")
-    print(testing_set_left_forearm)
+    print(testing_set_left_forearm)"""
 
     # train & save SOM
     som_saver = SOMSaver()
-    ROWS_HAND = 8
-    COLS_HAND = 8
+    ROWS_HAND = 4 #8
+    COLS_HAND = 4 #8
 
-    ROWS_FORE = 9
-    COLS_FORE = 12
+    #skusit mensie rozmery siete, 3x3, atd , 8x8 je uz velke 
+    ROWS_FORE = 3#9
+    COLS_FORE = 5#12
 
+    #ukladat SOM_info na konci kde je quant error atd do pickle, kniznice
     #### ---------- LEFT
     sim_start_time = time.time()
     left_som_forearm = train_new_som(ROWS_FORE, COLS_FORE, training_set_left_forearm)
@@ -158,7 +195,7 @@ if __name__ == "__main__":
     #error_RH_test = right_som_hand.quant_err(testing_set_right_hand)
 
     #save info
-    file_name = "SOM_trained_info_nove_data_24022024.txt"
+    file_name = "SOM_trained_info_nove_data_04032024.txt"
     f = open(file_name, "w")
     f.write('Quantization error of left hand: {} [train], {} [test]'.format(error_LH_train, error_LH_test))
     f.write("\n")

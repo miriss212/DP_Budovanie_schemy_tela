@@ -1,3 +1,6 @@
+import numpy as np
+import pickle
+import os
 
 try:
     from .util import *
@@ -26,8 +29,8 @@ class SOMSaver:
         # except OSError:
         #     pass
 
-        for i in range(som.weights.shape[0]): #prepisat cestu kam sa to uklada
-            file_name = "D:/DP_Budovanie_schemy_tela/data/trained/" + name + "/" + str(i) + ".txt"
+        for i in range(som.weights.shape[0]): 
+            file_name = "data/trained/" + name + "/" + str(i) + ".txt"
             f = open(file_name, "w")
             np.savetxt(file_name, som.weights[i])
             f.close()
@@ -123,23 +126,28 @@ class SOM:
         D = np.linalg.norm(x - self.weights, axis=2)
         win_coords = self.smallest_indices(D, k)
         result = np.zeros((self.n_rows, self.n_cols))
-        print(D[win_coords])
+        #print(D[win_coords])
         coords_x, coords_y = win_coords
         winner = (coords_x[0], coords_y[0])
         rest = (coords_x[1:], coords_y[1:])
         result[winner] = 1.0
         result[rest] = 0.5
-        print(result)
+        #print(result)
         return result.flatten().tolist()
 
     #def train(self, inputs, metric=lambda u,v:0, alpha_s=0.01, alpha_f=0.001, lambda_s=None, lambda_f=1, eps=100, trace=False, trace_interval=10):
     def train(self, inputs, metric=lambda u,v:0, alpha_s=0.01, alpha_f=0.001, lambda_s=None, lambda_f=1, eps=10, trace=True, trace_interval=10):
         (_, count) = inputs.shape
 
-        if trace:
+        
+        """if trace:
             ion()
             plot_grid_3d(inputs, self.weights, block=False)
-            redraw()
+            redraw()"""
+        """timestamp = int(time.time())
+        directory = f'data/{timestamp}/'
+        if not os.path.exists(directory):
+            os.makedirs(directory)"""
 
         for ep in range(eps):
             #tempo ucenia
@@ -153,6 +161,8 @@ class SOM:
             print('Ep {:3d}/{:3d}:'.format(ep+1,eps))
             print('  alpha_t = {:.3f}, lambda_t = {:.3f}'.format(alpha_t, lambda_t))
 
+
+
             for i in np.random.permutation(count):
                 x = inputs[:,i]
                 win_r, win_c = self.winner(x)
@@ -161,14 +171,31 @@ class SOM:
                 D = metric(np.stack((R, C)), np.reshape((win_r, win_c), (2,1,1)))
                 Q = np.exp(-(D/lambda_t)**2)
                 self.weights += alpha_t * np.atleast_3d(Q) * (x - self.weights)
-
+            
+            
 
             if trace and ((ep+1) % trace_interval == 0):
                 plot_grid_2d(inputs, self.weights, block=False)
                 redraw()
 
+            
+            
+            self.save_state(ep)
+
         if trace:
             ioff()
+
+    def save_state(self, epoch):
+        # Save the state of the SOM into a pickle file
+        filename = f'som_epoch_{epoch}.pickle'
+        with open(filename, 'wb') as f:
+            pickle.dump((self), f)
+
+
+    def plot_map(self):
+        plot_grid_2d(self.data, self.weights, block=False)
+        plt.colorbar()
+        plt.show()
 
     def quant_err(self, data=None):
         """
@@ -183,13 +210,13 @@ class SOM:
         (_, count) = data_to_check.shape
         for i in np.random.permutation(count):
             input_vector = data_to_check[:, i]
-            print("input vector: ", input_vector)
+            #print("input vector: ", input_vector)
             # winner = self.winnerVector(input_vector)
             # dists.append(np.linalg.norm(input_vector - winner))
             win_r, win_c = self.winner(input_vector)
             winner = self.weights[win_r][win_c]
-            print("Winner is ")
-            print(winner)
+            #print("Winner is ")
+            #print(winner)
             dists.append(np.linalg.norm(input_vector - winner))
 
         return np.array(dists).mean()
@@ -206,7 +233,7 @@ class SOM:
 
         (_, count) = data_to_check.shape
 
-        for i in np.random.permutation(count):
+        for i in np.random.permutation(count): #nepotrebujem random permutation, poradie v ktorom to tam strkam by nemalo ovplyvnit vysledok
             input_vector = data_to_check[:, i]
             win_r, win_c = self.winner(input_vector)
             winner_sets.append((win_r, win_c))

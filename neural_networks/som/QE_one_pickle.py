@@ -21,7 +21,7 @@ plt.title('Quantization Error for trained SOMs')
 plt.legend()
 plt.grid(True)
 
-# Save and display the plot
-result_path = "data/"  # Provide the path where you want to save the plot
+# Uloz a zobraz
+result_path = "data/" 
 plt.savefig("{}quantization_error_plot_{}.png".format(result_path, int(time.time())))
 plt.show()

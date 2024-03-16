@@ -198,14 +198,23 @@ if __name__ == "__main__":
     f.write('Enthropy of left hand: {} [train], {} [test]'.format(entropy_LF_train, entropy_LF_test))
     f.write("\n")
     
+# Save the SOMs and their quantization error arrays into a pickle file
+    soms_and_errors = {
+        "left_forearm": {
+            "som": left_som_forearm,
+            "quant_error_array": left_som_forearm.quant_error_array
+        },
+        "left_hand": {
+            "som": left_som_hand,
+            "quant_error_array": left_som_hand.quant_error_array
+        }
+    }
 
-    #f.write('Quantization error of right hand: {} [train], {} [test]'.format(error_RH_train, error_RH_test))
-    #f.write("\n")
-    #f.write('"Quantization error of right forearm: {} [train], {} [test]'.format(error_RF_train, error_RF_test))
-    #f.write("\n")
-    #f.close()
+    with open("soms_and_errors.pickle", "wb") as f:
+        pickle.dump(soms_and_errors, f)
+
     #quantization error, winner diferentiation, enthropy v experimentoch
     #experimenty pre kazdu ruku zvlast
     #somka lava ruka, IBA LAVA RUKA, experiment kde sa meni rychlost ucenia, 5 hodnot budem skusat, budem skusat aj roznu startovu a roznu cielovu
     #vypis za kazdou epochou a tam vypisem kvantizacnu chybu, wd a e
-    #
+    

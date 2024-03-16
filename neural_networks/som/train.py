@@ -33,11 +33,11 @@ def train_new_som(rows, cols, inputsData):
     # Define the parameters
     training_parameters = {
         "metric": metric,
-        "alpha_s": 0.5,
+        "alpha_s": 0.02,
         "alpha_f": 0.01,
         "lambda_s": lambda_s,
         "lambda_f": 1,
-        "eps": 10,#toto ovplyvnuje pocet epoch
+        "eps": 50,#toto ovplyvnuje pocet epoch
         "trace_interval": 10
     }
     #model.train(inputsData, metric=metric, alpha_s=0.5, alpha_f=0.01, lambda_s=lambda_s,
@@ -63,19 +63,7 @@ def train_new_som(rows, cols, inputsData):
         winner_diff_test = None
         entropy_test = None
     
-    
-    
-    # Append metrics to the list for this epoch
-    """epoch_metrics.append({
-        "epoch": ep,
-        "quantization_error_train": quantization_error_train,
-        "winner_diff_train": winner_diff_train,
-        "entropy_train": entropy_train,
-        "quantization_error_test": quantization_error_test,
-        "winner_diff_test": winner_diff_test,
-        "entropy_test": entropy_test
-    })"""
-
+   
     return model
 
 if __name__ == "__main__":
@@ -142,12 +130,12 @@ if __name__ == "__main__":
 
     # train & save SOM
     som_saver = SOMSaver()
-    ROWS_HAND = 4 #8
+    ROWS_HAND = 4 #8 musia byt aspon 4, 3 je prilis male
     COLS_HAND = 4 #8
 
     #skusit mensie rozmery siete, 3x3, atd , 8x8 je uz velke 
-    ROWS_FORE = 3#9
-    COLS_FORE = 5#12
+    ROWS_FORE = 4#9
+    COLS_FORE = 4#12
 
     #ukladat SOM_info na konci kde je quant error atd do pickle, kniznice
     #### ---------- LEFT

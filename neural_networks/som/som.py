@@ -45,7 +45,7 @@ class SOM:
         self.dim_in = dim_in
         self.n_rows = n_rows
         self.n_cols = n_cols
-
+        self.quant_error_array = []
         self.weights = np.ones((n_rows, n_cols, dim_in))*0.5
 
         if inputs is not None:
@@ -136,7 +136,7 @@ class SOM:
         return result.flatten().tolist()
 
     #def train(self, inputs, metric=lambda u,v:0, alpha_s=0.01, alpha_f=0.001, lambda_s=None, lambda_f=1, eps=100, trace=False, trace_interval=10):
-    def train(self, inputs, metric=lambda u,v:0, alpha_s=0.01, alpha_f=0.001, lambda_s=None, lambda_f=1, eps=10, trace=True, trace_interval=10):
+    def train(self, inputs, metric=lambda u,v:0, alpha_s=0.01, alpha_f=0.01, lambda_s=None, lambda_f=1, eps=10, trace=True, trace_interval=10):
         (_, count) = inputs.shape
 
         
@@ -162,7 +162,6 @@ class SOM:
             print('  alpha_t = {:.3f}, lambda_t = {:.3f}'.format(alpha_t, lambda_t))
 
 
-
             for i in np.random.permutation(count):
                 x = inputs[:,i]
                 win_r, win_c = self.winner(x)
@@ -172,24 +171,23 @@ class SOM:
                 Q = np.exp(-(D/lambda_t)**2)
                 self.weights += alpha_t * np.atleast_3d(Q) * (x - self.weights)
             
-            
+            quant_err = self.quant_err(inputs)  # Vypocet quantization erroru
+            self.quant_error_array.append(quant_err)  # Ulozit quantization error do pola
 
             if trace and ((ep+1) % trace_interval == 0):
                 plot_grid_2d(inputs, self.weights, block=False)
                 redraw()
+            
 
-            
-            
-            self.save_state(ep)
 
         if trace:
             ioff()
 
-    def save_state(self, epoch):
+    """def save_state(self, epoch):
         # Save the state of the SOM into a pickle file
         filename = f'som_epoch_{epoch}.pickle'
         with open(filename, 'wb') as f:
-            pickle.dump((self), f)
+            pickle.dump((self), f)"""
 
 
     def plot_map(self):
@@ -264,58 +262,3 @@ class SOM:
         # vynasobime -1, taka je konvencia 
         return -entropy
 
-
-    
-
-
-
-
-
-
-
-
-    """
-        Computes the winner differentiation of the SOM.
-        It uses the data fed at last training (optionally, the supplied data if not None).
-
-        Returns:
-        winner_diff (float): Average winner differentiation.
-        """
-
-    """
-    def winner_diff(self, data=None):
-        
-        if data is not None and data.any():
-            data_to_check = data
-        else:
-            data_to_check = self.data
-
-        winner_diffs = []
-        (_, count) = data_to_check.shape
-
-        # Save the original weights
-        original_weights = np.copy(self.weights)
-
-        for i in np.random.permutation(count):
-            input_vector = data_to_check[:, i]
-            win_r, win_c = self.winner(input_vector)
-            winner_vector = self._toOneHot(win_r, win_c, self.n_rows, self.n_cols)
-
-            # Save the original winner coordinates
-            original_win_r, original_win_c = win_r, win_c
-
-            # Determine the new winner without updating the weights
-            new_win_r, new_win_c = self.winner(input_vector)
-            new_winner_vector = self._toOneHot(new_win_r, new_win_c, self.n_rows, self.n_cols)
-
-            differentiation = np.sum(np.abs(np.subtract(new_winner_vector, winner_vector)))
-            winner_diffs.append(differentiation)
-
-            # Restore the original winner coordinates for the next iteration
-            win_r, win_c = original_win_r, original_win_c
-
-        # Restore the original weights
-        self.weights = original_weights
-
-        return np.mean(winner_diffs)
-        """

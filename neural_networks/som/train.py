@@ -37,7 +37,7 @@ def train_new_som(rows, cols, inputsData):
         "alpha_f": 0.02,
         "lambda_s": lambda_s,
         "lambda_f": 1,
-        "eps": 5,#toto ovplyvnuje pocet epoch
+        "eps": 2500,#toto ovplyvnuje pocet epoch
         "trace_interval": 10
     }
     #model.train(inputsData, metric=metric, alpha_s=0.5, alpha_f=0.01, lambda_s=lambda_s,
@@ -89,8 +89,8 @@ if __name__ == "__main__":
     left = np.array([i["leftHandPro"] for i in data])
     right = np.array([i["rightHandPro"] for i in data])
 
-    #left_hand = np.array(left[:, 5:])
-    #left_forearm = np.array(left[:, :5])
+    left_hand = np.array(left[:, 5:])
+    left_forearm = np.array(left[:, :5])
 
     right_hand = np.array(right[:, 5:])
     right_forearm = np.array(right[:, :5])
@@ -114,14 +114,14 @@ if __name__ == "__main__":
     training_set_right_hand = np.array(right_hand[:separator, :]).T
     training_set_right_forearm = np.array(right_forearm[:separator, :]).T
 
-    #training_set_left_hand = np.array(left_hand[:separator, :]).T
-    #training_set_left_forearm = np.array(left_forearm[:separator, :]).T
+    training_set_left_hand = np.array(left_hand[:separator, :]).T
+    training_set_left_forearm = np.array(left_forearm[:separator, :]).T
 
     testing_set_right_hand = np.array(right_hand[separator:, :]).T
     testing_set_right_forearm = np.array(right_forearm[separator:, :]).T
 
-    #testing_set_left_hand = np.array(left_hand[separator:, :]).T
-    #testing_set_left_forearm = np.array(left_forearm[separator:, :]).T
+    testing_set_left_hand = np.array(left_hand[separator:, :]).T
+    testing_set_left_forearm = np.array(left_forearm[separator:, :]).T
 
     """print("this is TRAINING set (left fore)")
     print(training_set_left_forearm)
@@ -130,16 +130,16 @@ if __name__ == "__main__":
 
     # train & save SOM
     som_saver = SOMSaver()
-    ROWS_HAND = 6 #8 musia byt aspon 4, 3 je prilis male
-    COLS_HAND = 6 #8
+    ROWS_HAND = 8 #8 musia byt aspon 4, 3 je prilis male
+    COLS_HAND = 8 #8
 
     #skusit mensie rozmery siete, 3x3, atd , 8x8 je uz velke 
-    ROWS_FORE = 6#9
-    COLS_FORE = 6#12
+    ROWS_FORE = 8#9
+    COLS_FORE = 8#12
 
     #ukladat SOM_info na konci kde je quant error atd do pickle, kniznice
     #### ---------- LEFT
-    """sim_start_time = time.time()
+    sim_start_time = time.time()
     left_som_forearm = train_new_som(ROWS_FORE, COLS_FORE, training_set_left_forearm)
     sim_end_time = time.time()
     print("Total training time forearm: {} seconds".format(humanreadible_runtime(sim_end_time - sim_start_time)))
@@ -149,24 +149,24 @@ if __name__ == "__main__":
     left_som_hand = train_new_som(ROWS_HAND, COLS_HAND, training_set_left_hand)
     sim_end_time = time.time()
     print("Total training time hand: {} seconds".format(humanreadible_runtime(sim_end_time - sim_start_time)))
-    som_saver.save_som(som=left_som_hand, name="left_hand")"""
+    som_saver.save_som(som=left_som_hand, name="left_hand")
 
     #### ---------- RIGHT
 
-    right_som_forearm = train_new_som(ROWS_FORE, COLS_FORE, training_set_right_forearm)
-    som_saver.save_som(som=right_som_forearm, name="right_forearm")
+    """right_som_forearm = train_new_som(ROWS_FORE, COLS_FORE, training_set_right_forearm)
+    som_saver.save_som(som=right_som_forearm, name="right_forearm")"""
 
-    right_som_hand = train_new_som(ROWS_HAND, COLS_HAND, training_set_right_hand)
-    som_saver.save_som(som=right_som_hand, name="right_hand")
+    """ right_som_hand = train_new_som(ROWS_HAND, COLS_HAND, training_set_right_hand)
+    som_saver.save_som(som=right_som_hand, name="right_hand")"""
 
     # -------------------
 
     # ------ EVAL QUANTIZATION ERROR
-    """error_LF_train = left_som_forearm.quant_err()
+    error_LF_train = left_som_forearm.quant_err()
     error_LF_test = left_som_forearm.quant_err(testing_set_left_forearm)
     error_LH_train = left_som_hand.quant_err()
     error_LH_test = left_som_hand.quant_err(testing_set_left_hand)
-
+    
     dw_LF_train = left_som_forearm.winner_diff(data=training_set_left_forearm)
     dw_LF_test = left_som_forearm.winner_diff(testing_set_left_forearm)
     dw_LH_train = left_som_hand.winner_diff(data=training_set_left_hand)
@@ -175,27 +175,27 @@ if __name__ == "__main__":
     entropy_LF_train = left_som_forearm.compute_entropy(data=training_set_left_forearm)
     entropy_LF_test = left_som_forearm.compute_entropy(data=testing_set_left_forearm)
     entropy_LH_train = left_som_hand.compute_entropy(data=training_set_left_hand)
-    entropy_LH_test = left_som_hand.compute_entropy(data=testing_set_left_hand)"""
+    entropy_LH_test = left_som_hand.compute_entropy(data=testing_set_left_hand)
 
-    error_RF_train = right_som_forearm.quant_err()
+    """error_RF_train = right_som_forearm.quant_err()
     error_RF_test = right_som_forearm.quant_err(testing_set_right_forearm)
     error_RH_train = right_som_hand.quant_err()
-    error_RH_test = right_som_hand.quant_err(testing_set_right_hand)
-
-    dw_RF_train = right_som_forearm.winner_diff(data=training_set_right_forearm)
+    error_RH_test = right_som_hand.quant_err(testing_set_right_hand)"""
+    
+    """dw_RF_train = right_som_forearm.winner_diff(data=training_set_right_forearm)
     dw_RF_test = right_som_forearm.winner_diff(testing_set_right_forearm)
     dw_RH_train = right_som_hand.winner_diff(data=training_set_right_hand)
-    dw_RH_test = right_som_hand.winner_diff(testing_set_right_hand)
+    dw_RH_test = right_som_hand.winner_diff(testing_set_right_hand)"""
 
-    entropy_RF_train = right_som_forearm.compute_entropy(data=training_set_right_forearm)
+    """entropy_RF_train = right_som_forearm.compute_entropy(data=training_set_right_forearm)
     entropy_RF_test = right_som_forearm.compute_entropy(data=testing_set_right_forearm)
     entropy_RH_train = right_som_hand.compute_entropy(data=training_set_right_hand)
     entropy_RH_test = right_som_hand.compute_entropy(data=testing_set_right_hand)
-
+"""
     #save info
-    file_name = "SOM_trained_info_nove_data_25032024_1500eps.txt"
+    file_name = "SOM_trained_info_nove_data_12042024_250eps_matej_data.txt"
     f = open(file_name, "w")
-    f.write('Quantization error of right hand: {} [train], {} [test]'.format(error_RH_train, error_RH_test))
+    """f.write('Quantization error of right hand: {} [train], {} [test]'.format(error_RH_train, error_RH_test))
     f.write("\n")
     f.write('"Quantization error of right forearm: {} [train], {} [test]'.format(error_RF_train, error_RF_test))
     f.write("\n")
@@ -206,8 +206,9 @@ if __name__ == "__main__":
     f.write('"Enthropy of right forearm: {} [train], {} [test]'.format(entropy_RH_train, entropy_RH_test))
     f.write("\n")
     f.write('Enthropy of right hand: {} [train], {} [test]'.format(entropy_RF_train, entropy_RF_test))
-    f.write("\n")
-    """f.write('Quantization error of left hand: {} [train], {} [test]'.format(error_LH_train, error_LH_test))
+    f.write("\n")"""
+
+    f.write('Quantization error of left hand: {} [train], {} [test]'.format(error_LH_train, error_LH_test))
     f.write("\n")
     f.write('"Quantization error of left forearm: {} [train], {} [test]'.format(error_LF_train, error_LF_test))
     f.write("\n")
@@ -218,20 +219,15 @@ if __name__ == "__main__":
     f.write('"Enthropy of left forearm: {} [train], {} [test]'.format(entropy_LH_train, entropy_LH_test))
     f.write("\n")
     f.write('Enthropy of left hand: {} [train], {} [test]'.format(entropy_LF_train, entropy_LF_test))
-    f.write("\n")"""
+    f.write("\n")
     
 
 
-    """left_forearm": {
-        "som": left_som_forearm,
-        "quant_error_array": left_som_forearm.quant_error_array
-    },
-    "left_hand": {
-        "som": left_som_hand,
-        "quant_error_array": left_som_hand.quant_error_array
-    }"""
-# Save the SOMs and their quantization error arrays into a pickle file
-    soms_and_errors = {
+    """,
+        "left_hand": {
+            "som": left_som_hand,
+            "quant_error_array": left_som_hand.quant_error_array
+        },
         "right_forearm": {
             "som": right_som_forearm,
             "quant_error_array": right_som_forearm.quant_error_array
@@ -239,14 +235,24 @@ if __name__ == "__main__":
         "right_hand": {
             "som": right_som_hand,
             "quant_error_array": right_som_hand.quant_error_array
-        }
+        }"""
+# Save the SOMs and their quantization error arrays into a pickle file
+    soms_and_errors = {
+        "left_forearm": {
+            "som": left_som_forearm,
+            "quant_error_array": left_som_forearm.quant_error_array
+        },
+        "left_hand": {
+            "som": left_som_hand,
+            "quant_error_array": left_som_hand.quant_error_array
+        },
     }
 
-    with open("soms_and_errors_R.pickle", "wb") as f:
+    with open("soms_and_errors_leyla_2500eps.pickle", "wb") as f:
         pickle.dump(soms_and_errors, f)
 
 
-    with open('soms_and_errors_R.pickle', 'rb') as f:
+    with open('soms_and_errors_leyla_2500eps.pickle', 'rb') as f:
         som = pickle.load(f)
          # Iterate over each SOM in the dictionary and plot its winner histogram
         for som_name, som_data in soms_and_errors.items():
